@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Chto? Teper ya sliz? - webtoon</title>
+<style>
+*{box-sizing:border-box}
+html{background:#000;color:#ddd;font:16px system-ui,sans-serif}
+body{margin:0;background:#000}
+header{position:sticky;top:0;z-index:5;background:#000d;backdrop-filter:blur(6px);border-bottom:1px solid #1d2a1f}
+.bar{max-width:720px;margin:auto;padding:8px 12px;display:flex;gap:8px;align-items:center}
+.bar b{flex:1;font-size:15px;color:#e7ffe1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+select,button{font:inherit;font-size:14px;color:#e7ffe1;background:#141a15;padding:6px 11px;border:1px solid #426542;border-radius:6px;cursor:pointer}
+button:disabled{opacity:.35;cursor:default}
+main{max-width:720px;margin:auto;background:#000}
+main img{display:block;width:100%;height:auto;margin:0;padding:0;border:0;background:#000;min-height:200px}
+footer{max-width:720px;margin:auto;padding:28px 12px 60px;display:flex;gap:10px;justify-content:center}
+</style>
+<header><div class="bar">
+  <b id="title"></b>
+  <button id="prev">&larr;</button>
+  <select id="chapter" aria-label="Chapter"></select>
+  <button id="next">&rarr;</button>
+</div></header>
+<main id="pages"></main>
+<footer><button id="prev2">&larr; Previous</button><button id="top">Top</button><button id="next2">Next &rarr;</button></footer>
+<script>
+const pick=document.getElementById('chapter'),box=document.getElementById('pages');
+const meta={};let cur=0,gen=0;
+const ids=[1,2,3,4,5,6,7,8,9,10];
+async function load(n){
+  if(!meta[n]){const r=await fetch(`ch${String(n).padStart(2,'0')}/manifest.json`);meta[n]=await r.json()}
+  return meta[n];
+}
+async function show(n){
+  const t=++gen;cur=+n;box.replaceChildren();location.hash=n;
+  const m=await load(n);if(t!==gen)return;
+  document.getElementById('title').textContent=`Chapter ${n} · ${m.title}`;
+  document.title=`Chapter ${n} - Chto? Teper ya sliz?`;
+  m.pages.forEach((p,i)=>{
+    const im=new Image();im.width=p.w;im.height=p.h;im.decoding='async';im.loading=i<4?'eager':'lazy';
+    im.alt=`Chapter ${n}, part ${i+1}`;im.src=`ch${String(n).padStart(2,'0')}/${p.file}`;box.append(im)
+  });
+  const i=ids.indexOf(cur);
+  for(const b of ['prev','prev2'])document.getElementById(b).disabled=i<=0;
+  for(const b of ['next','next2'])document.getElementById(b).disabled=i>=ids.length-1;
+  const s=+localStorage.getItem('slime_scroll_'+n)||0;
+  if(s>0)setTimeout(()=>t===gen&&scrollTo({top:s,behavior:'instant'}),300);
+}
+const go=d=>{const k=ids.indexOf(cur)+d;if(k>=0&&k<ids.length){pick.value=ids[k];scrollTo({top:0,behavior:'instant'});show(ids[k])}};
+pick.onchange=()=>{scrollTo({top:0,behavior:'instant'});show(pick.value)};
+for(const b of ['prev','prev2'])document.getElementById(b).onclick=()=>go(-1);
+for(const b of ['next','next2'])document.getElementById(b).onclick=()=>go(1);
+document.getElementById('top').onclick=()=>scrollTo({top:0});
+let tm;addEventListener('scroll',()=>{clearTimeout(tm);tm=setTimeout(()=>localStorage.setItem('slime_scroll_'+cur,String(Math.round(scrollY))),400)});
+addEventListener('hashchange',()=>{const n=+location.hash.slice(1);if(n&&n!==cur&&ids.includes(n)){pick.value=n;show(n)}});
+for(const n of ids){const o=document.createElement('option');o.value=n;o.textContent='Chapter '+n;pick.append(o)}
+const w=+location.hash.slice(1);const st=ids.includes(w)?w:1;pick.value=st;show(st);
+</script></html>
