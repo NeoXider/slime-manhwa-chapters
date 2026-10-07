@@ -25,7 +25,7 @@ footer{max-width:720px;margin:auto;padding:28px 12px 60px;display:flex;gap:10px;
 <footer><button id="prev2">&larr; Previous</button><button id="top">Top</button><button id="next2">Next &rarr;</button></footer>
 <script>
 const pick=document.getElementById('chapter'),box=document.getElementById('pages');
-const V='20261007a';const meta={};let cur=0,gen=0;
+const V='20261007b';const meta={};let cur=0,gen=0;
 const ids=[1,2,3,4,5,6,7,8,9,10];
 async function load(n){
   if(!meta[n]){const r=await fetch(`ch${String(n).padStart(2,'0')}/manifest.json?v=${V}`);meta[n]=await r.json()}
