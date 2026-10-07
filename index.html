@@ -24,10 +24,10 @@ footer{max-width:720px;margin:auto;padding:28px 12px 60px;display:flex;gap:10px;
 <footer><button id="prev2">&larr; Previous</button><button id="top">Top</button><button id="next2">Next &rarr;</button></footer>
 <script>
 const pick=document.getElementById('chapter'),box=document.getElementById('pages');
-const meta={};let cur=0,gen=0;
+const V='20261007a';const meta={};let cur=0,gen=0;
 const ids=[1,2,3,4,5,6,7,8,9,10];
 async function load(n){
-  if(!meta[n]){const r=await fetch(`ch${String(n).padStart(2,'0')}/manifest.json`);meta[n]=await r.json()}
+  if(!meta[n]){const r=await fetch(`ch${String(n).padStart(2,'0')}/manifest.json?v=${V}`);meta[n]=await r.json()}
   return meta[n];
 }
 async function show(n){
@@ -37,7 +37,7 @@ async function show(n){
   document.title=`Chapter ${n} - Chto? Teper ya sliz?`;
   m.pages.forEach((p,i)=>{
     const im=new Image();im.width=p.w;im.height=p.h;im.decoding='async';im.loading=i<4?'eager':'lazy';
-    im.alt=`Chapter ${n}, part ${i+1}`;im.src=`ch${String(n).padStart(2,'0')}/${p.file}`;box.append(im)
+    im.alt=`Chapter ${n}, part ${i+1}`;im.src=`ch${String(n).padStart(2,'0')}/${p.file}?v=${V}`;box.append(im)
   });
   const i=ids.indexOf(cur);
   for(const b of ['prev','prev2'])document.getElementById(b).disabled=i<=0;
